@@ -36,31 +36,59 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 		$sql = $this->createBlock();
 		$db->getDB()->query($sql);
 	}
+	if($table == "wybor"){
+		$this->setWybor();
+	}
 	}
 elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "users" and $key == null) {$this->getUsers();}
 	if($table == "users" and $key != null) {$this->getUserIdByLogin($key);}
 	if($table == "ilosc") {$this->iloscOsob();}
+	if($table == "wyborOsoby" and $key != null) {$this->getWyborByUser($key);}
+	if($table == "wyborPrzedmiotu" and $key != null) {$this->getWyborByPrzedmiot($key);}
 }elseif ($_SERVER['REQUEST_METHOD'] == "DELETE"){
-		if($table == "students"){
+	if($table == "students"){
 	$sql = $this->deleteStudent($key);
 	$db->getDB()->query($sql);
 	$sql = $this->deleteUser($key);
 	$db->getDB()->query($sql);
 		}
-		if($table == "wyklad"){
+	if($table == "wyklad"){
 		$sql = $this->deleteWyklad($key);
 		$db->getDB()->query($sql);	
 		}	
+	if($table == "prowadzacy"){
+		$sql = $this->deleteProwadzacy($key);
+		$db->getDB()->query($sql);	
 		}
+	if($table == "blok"){
+		$sql = $this->deleteBlock($key);
+		$db->getDB()->query($sql);
+		}
+}elseif ($_SERVER['REQUEST_METHOD'] == "PUT"){
+	if($table == "wyklad"){
+		$sql = $this->editWyklad();
+		$db->getDB()->query($sql);	
+	}	
+	if($table == "blok"){
+		$sql = $this->editBlock();
+		$db->getDB()->query($sql);	
+	}
+	if($table == "users"){
+		$sql = $this->editUser();
+		$db->getDB()->query($sql);	
+	}	
+	if($table == "wybor"){
+		$sql = $this->editWybor();
+		$db->getDB()->query($sql);	
+	}	
+	}
 else{
 	$json = array("status" => 0, "msg" => "Request method not accepted");
 	header('Content-type: application/json');
 	echo json_encode($json);
 }
-	$db->closeConnection();
-
-
+$db->closeConnection();
 }
 public function getUsers(){
 	$db = new dbConnnection();
@@ -72,8 +100,6 @@ public function getUsers(){
 		while($row = $result->fetch_assoc()) {
 			echo json_encode($row);
 		}
-	} else {
-		echo "0 results";
 	}
 }
 public function getUserIdByLogin($login){
@@ -91,17 +117,26 @@ public function getUserIdByLogin($login){
 	}
 }
 public function addUser(){
+	$db = new dbConnnection();
+	$db->db_connect();
 	$entityBody = file_get_contents('php://input');
 	$imie = json_decode($entityBody)->{'imie'};
 	$nazwisko = json_decode($entityBody)->{'nazwisko'};
 	$login = json_decode($entityBody)->{'login'};
 	$haslo = json_decode($entityBody)->{'haslo'};
-
-	$sql = "INSERT INTO `system`.`uzykownik` (`imie`, `nazwisko`, `login`, `haslo`) VALUES ('$imie', '$nazwisko', '$login', '$haslo');";
-	return $sql;
+	$sql = "SELECT login FROM uzykownik;";
+	$result = $db->getDB()->query($sql);
+	
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+		if($login == $row['login']){ return " ";}
+		}
+	}
+	$sqlAdd = "INSERT INTO `system`.`uzykownik` (`imie`, `nazwisko`, `login`, `haslo`) VALUES ('$imie', '$nazwisko', '$login', '$haslo');";
+	return $sqlAdd ;
 }
 public function addProwadzacy(){
-$db = new dbConnnection();
+	$db = new dbConnnection();
 	$db->db_connect();
 	$entityBody = file_get_contents('php://input');
 	$login = json_decode($entityBody)->{'login'};
@@ -180,17 +215,12 @@ public function deleteUser($key){
 	return $sql;
 }
 public function deleteStudent($key){
-$db = new dbConnnection();
-	$db->db_connect();
-$id_uzytkownikSQL = "SELECT id FROM uzykownik WHERE login= '$key';";
-	$id_uzytkownik = $db->getDB()->query($id_uzytkownikSQL);
-	if ($id_uzytkownik->num_rows > 0) {
-		while($row = $id_uzytkownik->fetch_assoc()) {
-			$id = $row['id'];	
-			$sql = "DELETE  FROM `system`.`student` WHERE id_uzytkownik='$id';";
-			return $sql;
-		}
-	}
+	$sql = "DELETE  FROM `system`.`student` WHERE id_uzytkownik='$key';";
+	return $sql;
+}
+public function deleteProwadzacy($key){
+	$sql = "DELETE  FROM `system`.`prowadzacy` WHERE id_uzytkownik='$key';";
+	return $sql;
 }
 public function iloscOsob(){
 $db = new dbConnnection();
@@ -206,62 +236,102 @@ $db = new dbConnnection();
 	echo $i;
 }
 public function deleteWyklad($key){
-	$db = new dbConnnection();
-	$db->db_connect();
 	$sql = "DELETE  FROM `system`.`przedmiot` WHERE id='$key';";
 	return $sql;
 }
 public function addWyklad(){
-		$db = new dbConnnection();
-	$db->db_connect();
 	$entityBody = file_get_contents('php://input');
-	$blokobieralny = json_decode($entityBody)->{'blokobieralny'};
-	$kierunek = json_decode($entityBody)->{'kierunek'};
-	$prowadzacy = json_decode($entityBody)->{'prowadzacy'};
-	$ilosc_godzin = json_decode($entityBody)->{'ilosc_godzin'};
-	$ograniczenie = json_decode($entityBody)->{'ograniczenie'};
+	$id_blokobieralny= json_decode($entityBody)->{'blokobieralny'};
+	$id_kierunek= json_decode($entityBody)->{'kierunek'};
+	$id_kierunek= json_decode($entityBody)->{'prowadzacy'};
+	$ilosc_godzin= json_decode($entityBody)->{'ilosc_godzin'};
+	$ograniczenie= json_decode($entityBody)->{'ograniczenie'};
+	$nazwa= json_decode($entityBody)->{'nazwa'};
 
-	
-	$id_blokSQL = "SELECT id FROM blokobieralny WHERE nazwa= '$blokobieralny';";
-	$id_blok = $db->getDB()->query($id_blokSQL);
-		$row = $id_blok->fetch_assoc();
-		$id_blokobieralny = $row['id'];
-			
-		$id_kieruekjSQL = "SELECT id FROM kierunek WHERE nazwa= '$kierunek';";
-		$id_kierun = $db->getDB()->query($id_kieruekjSQL);
-		$row1 = $id_kierun->fetch_assoc();
-		$id_kierunek = $row1['id'];
-
-	$id_prowadzacySQL = "SELECT id FROM prowadzacy WHERE id_uzytkownik= '$prowadzacy';";
-	$id_prowadz = $db->getDB()->query($id_prowadzacySQL);
-		$row2 = $id_prowadz->fetch_assoc();
-		$id_prowadzacy = $row2['id'];		
-	
-	$sql = "INSERT INTO `system`.`przedmiot` (`id_blokobieralny`, `id_kierunek`, `id_prowadzacy`, `ilosc_godzin`, `ograniczenie`) VALUES ('$id_blokobieralny', '$id_kierunek', '$id_prowadzacy', '$ilosc_godzin', '$ograniczenie');";
+	$sql = "INSERT INTO `system`.`przedmiot` (`id_blokobieralny`, `id_kierunek`, `id_prowadzacy`, `ilosc_godzin`, `ograniczenie`,`nazwa`) VALUES ('$id_blokobieralny', '$id_kierunek', '$id_prowadzacy', '$ilosc_godzin', '$ograniczenie','$nazwa');";
 	return $sql;
 }
 public function editWyklad(){
+	$entityBody = file_get_contents('php://input');
+	$id= json_decode($entityBody)->{'id'};
+	$id_blokobieralny= json_decode($entityBody)->{'blokobieralny'};
+	$id_kierunek= json_decode($entityBody)->{'kierunek'};
+	$id_prowadzacy= json_decode($entityBody)->{'prowadzacy'};
+	$ilosc_godzin= json_decode($entityBody)->{'ilosc_godzin'};
+	$ograniczenie= json_decode($entityBody)->{'ograniczenie'};
+	$nazwa= json_decode($entityBody)->{'nazwa'};
 
+	$sql = "UPDATE `system`.`przedmiot` SET id_blokobieralny = '$id_blokobieralny',id_kierunek= '$id_kierunek',id_prowadzacy= '$id_prowadzacy',ilosc_godzin= '$ilosc_godzin',ograniczenie = '$ograniczenie', nazwa= '$nazwa' WHERE id = '$id';";
+	return $sql;
 }
 public function createBlock(){
-$db = new dbConnnection();
-	$db->db_connect();
 	$entityBody = file_get_contents('php://input');
 	$nazwa = json_decode($entityBody)->{'nazwa'};
-	
 	$sql = "INSERT INTO `system`.`blokobieralny` (`nazwa`) VALUES ('$nazwa');";
 	return $sql;
 }
-public function deleteBlock(){
-	
+public function deleteBlock($key){
+	$sql = "DELETE  FROM `system`.`blokobieralny` WHERE id_uzytkownik='$key';";
+	return $sql;
 }
 public function editBlock(){
-	
+	$entityBody = file_get_contents('php://input');
+	$id = json_decode($entityBody)->{'id'};
+	$nazwa = json_decode($entityBody)->{'nazwa'};
+	$sql = "UPDATE `system`.`blokobieralny` SET nazwa = '$nazwa' WHERE id = '$id';";
+	return $sql;	
 }
 public function editUser(){
-	
+	$entityBody = file_get_contents('php://input');
+	$id = json_decode($entityBody)->{'id'};
+	$imie = json_decode($entityBody)->{'imie'};
+	$nazwisko = json_decode($entityBody)->{'nazwisko'};
+	$login = json_decode($entityBody)->{'login'};
+	$haslo = json_decode($entityBody)->{'haslo'};
+	$sql = "UPDATE `system`.`uzykownik` SET imie  = '$imie',nazwisko = '$nazwisko',login = '$login',haslo = '$haslo' WHERE id = '$id';";
+	return $sql;
 }
+public function getWyborByUser($id){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT w.id, w.id_student, w.id_przedmiot, p.nazwa FROM wybor w join przedmiot p on p.id = w.id_przedmiot WHERE w.id_student='$id';";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function setWybor(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$entityBody = file_get_contents('php://input');
+	$id_student= json_decode($entityBody)->{'student'};
+	$id_przedmiot= json_decode($entityBody)->{'przedmiot'};
 
+	$sqlAdd = "INSERT INTO `system`.`wybor` (`id_student`, `id_przedmiot`) VALUES ('$id_student', '$id_przedmiot');";
+	$db->getDB()->query($sqlAdd );
+	
+	}
+public function editWybor(){
+	$entityBody = file_get_contents('php://input');
+	$id = json_decode($entityBody)->{'id'};
+	$id_student= json_decode($entityBody)->{'student'};
+	$id_przedmiot= json_decode($entityBody)->{'przedmiot'};
+	$sql = "UPDATE `system`.`wybor` SET id_student = '$id_student', id_przedmiot='$id_przedmiot'  WHERE id = '$id';";
+	return $sql;	
+}
+public function getWyborByPrzedmiot($id){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT w.id, w.id_student, w.id_przedmiot, p.imie, p.nazwisko FROM wybor w join uzykownik p on p.id = w.id_student WHERE w.id_przedmiot='$id';";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
 }
 $rest = new RestApi();
 $rest->server();
