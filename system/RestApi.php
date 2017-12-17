@@ -32,6 +32,10 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 		$sqlWyklad = $this->addWyklad();
 		$db->getDB()->query($sqlWyklad);
 	}
+	if($table == "blok"){
+		$sql = $this->createBlock();
+		$db->getDB()->query($sql);
+	}
 	}
 elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "users" and $key == null) {$this->getUsers();}
@@ -45,6 +49,8 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	$db->getDB()->query($sql);
 		}
 		if($table == "wyklad"){
+		$sql = $this->deleteWyklad($key);
+		$db->getDB()->query($sql);	
 		}	
 		}
 else{
@@ -199,8 +205,11 @@ $db = new dbConnnection();
 	}
 	echo $i;
 }
-public function deleteWyklad(){
-
+public function deleteWyklad($key){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "DELETE  FROM `system`.`przedmiot` WHERE id='$key';";
+	return $sql;
 }
 public function addWyklad(){
 		$db = new dbConnnection();
@@ -235,7 +244,13 @@ public function editWyklad(){
 
 }
 public function createBlock(){
-
+$db = new dbConnnection();
+	$db->db_connect();
+	$entityBody = file_get_contents('php://input');
+	$nazwa = json_decode($entityBody)->{'nazwa'};
+	
+	$sql = "INSERT INTO `system`.`blokobieralny` (`nazwa`) VALUES ('$nazwa');";
+	return $sql;
 }
 public function deleteBlock(){
 	
