@@ -308,10 +308,12 @@ public function setWybor(){
 	$entityBody = file_get_contents('php://input');
 	$id_student= json_decode($entityBody)->{'student'};
 	$id_przedmiot= json_decode($entityBody)->{'przedmiot'};
-
-	$sqlAdd = "INSERT INTO `system`.`wybor` (`id_student`, `id_przedmiot`) VALUES ('$id_student', '$id_przedmiot');";
-	$db->getDB()->query($sqlAdd );
-	
+	$sql = "SELECT id FROM wybor WHERE id_student='$id_student' AND id_przedmiot='$id_przedmiot';" ;
+	$result = $db->getDB()->query($sql);
+		if ($result->num_rows < 1) {
+		$sqlAdd = "INSERT INTO `system`.`wybor` (`id_student`, `id_przedmiot`) VALUES ('$id_student', '$id_przedmiot');";
+		$db->getDB()->query($sqlAdd );
+		}
 	}
 public function editWybor(){
 	$entityBody = file_get_contents('php://input');
