@@ -48,7 +48,8 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "wyborPrzedmiotu" and $key != null) {$this->getWyborByPrzedmiot($key);}
 	if($table == "uprawnienia" and $key != null){($this->getDegree($key));}
 	if($table == "zapisy" and $key != null){($this->getZapisy($key));}
-	if($table == "wyklad" and $key != null){($this->getWyklad($key));}
+	if($table == "wyklady" and $key != null){($this->getWyklad($key));}
+	if($table == "wyklady" and $key == null) {$this->getWyklady();}
 }elseif ($_SERVER['REQUEST_METHOD'] == "DELETE"){
 	if($table == "students"){
 	$sql = $this->deleteStudent($key);
@@ -373,6 +374,17 @@ public function getWyklad($id){
 	$db = new dbConnnection();
 	$db->db_connect();
 	$sql = "SELECT * FROM przedmiot WHERE id ='$id';";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getWyklady(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT * FROM przedmiot";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {

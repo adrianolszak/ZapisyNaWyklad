@@ -6,7 +6,9 @@ GET
 	/wyborPrzedmiotu/id
 --------UPDATE		/uprawnienia/id                   -id usera
 --------NEW			/zapisy/id						  -id wykladu, zeby sprawdzic ilosc zapisanych osob
---------NEW			/wyklad/id						  -zwraca wszystkie info na temat danego przedmiotu
+--------NEW			/wyklady/id						  -zwraca wszystkie info na temat danego przedmiotu
+--------NEW			/wyklady					  	  -zwraca wszystkie info na temat przedmiotow
+
 Delete
 	/students/id
 	/prowadzacy/id
