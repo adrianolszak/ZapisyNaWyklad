@@ -1,5 +1,5 @@
 <?php
-include 'C:\xampp\htdocs\system\dbConnnection.php';
+include 'dbConnnection.php';
 class RestApi {
 
 public function server(){
@@ -44,6 +44,11 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "users" and $key == null) {$this->getUsers();}
 	if($table == "users" and $key != null) {$this->getUserIdByLogin($key);}
 	if($table == "ilosc") {$this->iloscOsob();}
+    if($table == "kierunki") {$this->getKierunki();}
+    if($table == "katedry") {$this->getKatedry();}
+    if($table == "tytuly") {$this->getTytuly();}
+    if($table == "blocks") {$this->getBlocks();}
+    if($table == "lectures") {$this->getLectures($key);}
 	if($table == "wyborOsoby" and $key != null) {$this->getWyborByUser($key);}
 	if($table == "wyborPrzedmiotu" and $key != null) {$this->getWyborByPrzedmiot($key);}
 }elseif ($_SERVER['REQUEST_METHOD'] == "DELETE"){
@@ -94,6 +99,67 @@ public function getUsers(){
 	$db = new dbConnnection();
 	$db->db_connect();
 	$sql = "SELECT id, imie, nazwisko, login FROM uzykownik";
+	$result = $db->getDB()->query($sql);
+
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getLectures($key){
+    $db = new dbConnnection();
+	$db->db_connect();
+    $sql = "SELECT `id_blokobieralny`, `id_kierunek`, `id_prowadzacy`, `ilosc_godzin`, `ograniczenie`,`nazwa` FROM `system`.`przedmiot` WHERE id_prowadzacy='$key';";
+    
+    $result = $db->getDB()->query($sql);
+
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getKierunki(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT id, nazwa FROM kierunek";
+	$result = $db->getDB()->query($sql);
+
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getBlocks(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT id, nazwa FROM blokobieralny";
+	$result = $db->getDB()->query($sql);
+
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getKatedry(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT id, nazwa FROM katedra";
+	$result = $db->getDB()->query($sql);
+
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getTytuly(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT id, nazwa FROM tytul";
 	$result = $db->getDB()->query($sql);
 
 	if ($result->num_rows > 0) {
