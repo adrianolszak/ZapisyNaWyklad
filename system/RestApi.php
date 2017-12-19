@@ -46,6 +46,9 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "ilosc") {$this->iloscOsob();}
 	if($table == "wyborOsoby" and $key != null) {$this->getWyborByUser($key);}
 	if($table == "wyborPrzedmiotu" and $key != null) {$this->getWyborByPrzedmiot($key);}
+	if($table == "uprawnienia" and $key != null){($this->getDegree($key));}
+	if($table == "zapisy" and $key != null){($this->getZapisy($key));}
+	if($table == "wyklad" and $key != null){($this->getWyklad($key));}
 }elseif ($_SERVER['REQUEST_METHOD'] == "DELETE"){
 	if($table == "students"){
 	$sql = $this->deleteStudent($key);
@@ -60,6 +63,8 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "prowadzacy"){
 		$sql = $this->deleteProwadzacy($key);
 		$db->getDB()->query($sql);	
+		$sql = $this->deleteUser($key);
+		$db->getDB()->query($sql);
 		}
 	if($table == "blok"){
 		$sql = $this->deleteBlock($key);
@@ -140,18 +145,15 @@ public function addProwadzacy(){
 	$db->db_connect();
 	$entityBody = file_get_contents('php://input');
 	$login = json_decode($entityBody)->{'login'};
-	$nazwaKatedry = json_decode($entityBody)->{'katedra'};
-	$tytul = json_decode($entityBody)->{'tytul'};
+	$katedraID = json_decode($entityBody)->{'id_katedra'};
+	$tytulID = json_decode($entityBody)->{'id_tytul'};
 
 	$id_uzytkownikSQL = "SELECT id FROM uzykownik WHERE login= '$login';";
 	$id_uzytkownik = $db->getDB()->query($id_uzytkownikSQL);
 	if ($id_uzytkownik->num_rows > 0) {
 		while($row = $id_uzytkownik->fetch_assoc()) {
-			echo json_encode($row);
 			$id = $row['id'];
-			$katedraID = $this->getKatedraIdByName($nazwaKatedry);
-	$sql = "INSERT INTO `system`.`prowadzacy` (`id_tytul`, `id_katedra`, `id_uzytkownik`) VALUES ('$tytul', '$katedraID','$id');";
-	echo $sql;
+	$sql = "INSERT INTO `system`.`prowadzacy` (`id_tytul`, `id_katedra`, `id_uzytkownik`) VALUES ('$tytulID', '$katedraID','$id');";
 	return $sql;
 		}
 	}
@@ -209,9 +211,7 @@ public function addAdmin(){
 	return null;
 }
 public function deleteUser($key){
-	$db = new dbConnnection();
-	$db->db_connect();
-	$sql = "DELETE  FROM `system`.`uzykownik` WHERE login='$key';";
+	$sql = "DELETE  FROM `system`.`uzykownik` WHERE id='$key';";
 	return $sql;
 }
 public function deleteStudent($key){
@@ -306,11 +306,21 @@ public function setWybor(){
 	$db = new dbConnnection();
 	$db->db_connect();
 	$entityBody = file_get_contents('php://input');
-	$id_student= json_decode($entityBody)->{'student'};
-	$id_przedmiot= json_decode($entityBody)->{'przedmiot'};
+	$id_student= json_decode($entityBody)->{'id_student'};
+	$id_przedmiot= json_decode($entityBody)->{'id_przedmiot'};
 	$sql = "SELECT id FROM wybor WHERE id_student='$id_student' AND id_przedmiot='$id_przedmiot';" ;
 	$result = $db->getDB()->query($sql);
-		if ($result->num_rows < 1) {
+	
+	$sqlZapisani = "SELECT COUNT(*) as total FROM wybor WHERE id_przedmiot='$id_przedmiot';" ;
+	$resultZapisani = $db->getDB()->query($sqlZapisani);
+	$zapisani = $resultZapisani->fetch_assoc();
+	
+	$sqlOgraniczenie = "SELECT ograniczenie FROM przedmiot WHERE id='$id_przedmiot';" ;
+	$resultOgraniczenie = $db->getDB()->query($sqlOgraniczenie);
+	$ograniczenia = $resultOgraniczenie->fetch_assoc();
+	echo $ograniczenia['ograniczenie'];
+	echo $zapisani['total'];
+		if ($result->num_rows < 1 AND $zapisani['total'] < $ograniczenia['ograniczenie']) {
 		$sqlAdd = "INSERT INTO `system`.`wybor` (`id_student`, `id_przedmiot`) VALUES ('$id_student', '$id_przedmiot');";
 		$db->getDB()->query($sqlAdd );
 		}
@@ -327,6 +337,42 @@ public function getWyborByPrzedmiot($id){
 	$db = new dbConnnection();
 	$db->db_connect();
 	$sql = "SELECT w.id, w.id_student, w.id_przedmiot, p.imie, p.nazwisko FROM wybor w join uzykownik p on p.id = w.id_student WHERE w.id_przedmiot='$id';";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getDegree($key){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sqlStudent = "SELECT * FROM student WHERE id_uzytkownik= '$key';";
+	$resultStudent = $db->getDB()->query($sqlStudent);
+	if ($resultStudent->num_rows > 0) {
+		echo "student";
+		return;
+	}
+	$sqlProwadzacy = "SELECT * FROM prowadzacy WHERE id_uzytkownik= '$key';";
+	$resultProwadzacy = $db->getDB()->query($sqlProwadzacy);
+	if ($resultProwadzacy->num_rows > 0) {
+		echo "wykladowca";
+		return;
+	}
+	echo "admin";
+}
+public function getZapisy($id){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT COUNT(id) as total FROM wybor WHERE id_przedmiot='$id';";
+	$result = $db->getDB()->query($sql);
+	$data = $result->fetch_assoc();
+	echo $data['total'];
+}
+public function getWyklad($id){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT * FROM przedmiot WHERE id ='$id';";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {

@@ -1,0 +1,26 @@
+GET
+	/users
+	/users/id
+	/ilosc
+	/wyborOsoby/id
+	/wyborPrzedmiotu/id
+--------UPDATE		/uprawnienia/id                   -id usera
+--------NEW			/zapisy/id						  -id wykladu, zeby sprawdzic ilosc zapisanych osob
+--------NEW			/wyklad/id						  -zwraca wszystkie info na temat danego przedmiotu
+Delete
+	/students/id
+	/prowadzacy/id
+	/wyklad/id
+	/blok/id
+POST
+	/students	imie,nazwisko,login,haslo,kierunek
+--------UPDATE		/prowadzacy	imie,nazwisko,login,haslo,id_katedra,id_tytul				-id_katedra i id_tytul za katedra i tytul
+	/admin		imie,nazwisko,login,haslo,
+	/wyklad		blokobieralny,kierunek,prowadzacy,ilosc_godzin,ograniczenie
+	/blok		nazwa	
+--------UPDATE		/wybor		id_student,id_przedmiot										-id_student,id_przedmiot	 za student,przedmiot			
+PUT
+	/wyklad		id,blokobieralny,kierunek,prowadzacy,ilosc_godzin,ograniczenie
+	/blok		id,nazwa
+	/users		id,imie,nazwisko,login,haslo
+	/wybor		id,student,przedmiot	
