@@ -1,0 +1,45 @@
+
+
+.nav li a.active{
+  background-color: black;
+  color: white;
+}
+
+thead{
+    font-weight: 600;
+    text-align: left;
+}
+
+.question{
+    font-weight: 600;
+    color: #333;
+}
+
+.login-wrapper{
+    margin: 0;
+    padding: 0 10vw;
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+.login-wrapper .page-header{
+    margin: 0;
+    padding: 0;
+}
+
+@media(min-width:768px) {
+    #page-wrapper{
+       padding-left: 225px;
+    }
+    .login-wrapper .page-header{
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.survey thead{
+    font-size: 120%;
+}
+

@@ -1,0 +1,40 @@
+<h1>Dodanie prowadzącego</h1>
+
+<form class="survey" ng-submit="processForm()">
+   <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputName">Imię</label>
+      <input type="text" class="form-control" id="inputName" placeholder="Imię" ng-model="formData.imie">
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputSurname">Nazwisko</label>
+      <input type="text" class="form-control" id="inputSurname" placeholder="Nazwisko" ng-model="formData.nazwisko">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputLogin">Login</label>
+      <input type="text" class="form-control" id="inputLogin" placeholder="Login" ng-model="formData.login">
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputPassword">Hasło</label>
+      <input type="password" class="form-control" id="inputPassword" placeholder="Hasło" ng-model="formData.haslo">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputKatedra">Katedra</label>
+      <select id="inputKatedra" ng-model="formData.katedra">
+        <option ng-repeat="k in katedry" value="{{k.nazwa}}">{{k.nazwa}}</option>
+      </select>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputTitle">Tytuł naukowy</label>
+      <select id="inputTitle" ng-model="formData.kierunek">
+        <option ng-repeat="t in title" value="{{t.nazwa}}">{{t.nazwa}}</option>
+      </select>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Zapisz</button>
+  <button ui-sref-active="active" ui-sref="app.users" class="btn btn-default">Powrót</button>
+</form>

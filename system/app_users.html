@@ -1,0 +1,28 @@
+<h1>Użytkownicy</h1>
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Imie</th>
+      <th scope="col">Nazwisko</th>
+      <th scope="col">Login</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="x in users">
+      <th scope="row">{{$index}}</th>
+      <td>{{ x.imie }}</td>
+      <td>{{ x.nazwisko }}</td>
+      <td>{{ x.login }}</td>
+      <td><a ui-sref-active="active" ui-sref="app.userEdit({uid: x.id})"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
+      <td><a ng-click="userDelete(x.id, $index)"><i class="fa fa-times" aria-hidden="true"></i></a></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<a  ui-sref-active="active" ui-sref="app.addStudent"><button class="btn">nowy student</button></a>
+<a  ui-sref-active="active" ui-sref="app.addProwadzacy"><button class="btn">nowy prowadzący</button></a>
