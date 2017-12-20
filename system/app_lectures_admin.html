@@ -13,12 +13,12 @@
   </thead>
   <tbody>
     <tr ng-repeat="x in lectures">
-      <th scope="row">{{x.id_blokobieralny}}</th>
+      <th scope="row">{{x.blokobieralny}}</th>
       <td>{{ x.nazwa }}</td>
       <td>{{ x.ilosc_godzin }}</td>
       <td>{{ x.ograniczenie }}</td>
       <td><a ui-sref-active="active" ui-sref="app.lectureEdit({uid: x.id})"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
-      <td><a ng-click="userDelete(x.id, $index)"><i class="fa fa-times" aria-hidden="true"></i></a></td>
+      <td><a ng-click="lectureDelete(x.id, $index)"><i class="fa fa-times" aria-hidden="true"></i></a></td>
     </tr>
   </tbody>
 </table>

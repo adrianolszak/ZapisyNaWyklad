@@ -48,7 +48,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
     if($table == "katedry") {$this->getKatedry();}
     if($table == "tytuly") {$this->getTytuly();}
     if($table == "blocks") {$this->getBlocks();}
-    if($table == "lectures") {$this->getLectures($key);}
+    if($table == "lectures") {$this->getLectures();}
 	if($table == "wyborOsoby" and $key != null) {$this->getWyborByUser($key);}
 	if($table == "wyborPrzedmiotu" and $key != null) {$this->getWyborByPrzedmiot($key);}
 	if($table == "uprawnienia" and $key != null){($this->getDegree($key));}
@@ -106,10 +106,10 @@ else{
 }
 $db->closeConnection();
 }
-public function getLectures($key){
+public function getLectures(){
     $db = new dbConnnection();
 	$db->db_connect();
-    $sql = "SELECT `id_blokobieralny`, `id_kierunek`, `id_prowadzacy`, `ilosc_godzin`, `ograniczenie`,`nazwa` FROM `system`.`przedmiot` WHERE id_prowadzacy='$key';";
+    $sql = "SELECT `id`, `id_blokobieralny`, `id_kierunek`, `id_prowadzacy`, `ilosc_godzin`, `ograniczenie`,`nazwa` FROM `system`.`przedmiot`;";
     
     $result = $db->getDB()->query($sql);
 
@@ -313,9 +313,9 @@ public function deleteWyklad($key){
 }
 public function addWyklad(){
 	$entityBody = file_get_contents('php://input');
-	$id_blokobieralny= json_decode($entityBody)->{'blokobieralny'};
-	$id_kierunek= json_decode($entityBody)->{'kierunek'};
-	$id_kierunek= json_decode($entityBody)->{'prowadzacy'};
+	$id_blokobieralny= json_decode($entityBody)->{'id_blokobieralny'};
+	$id_kierunek= json_decode($entityBody)->{'id_kierunek'};
+	$id_prowadzacy= json_decode($entityBody)->{'id_prowadzacy'};
 	$ilosc_godzin= json_decode($entityBody)->{'ilosc_godzin'};
 	$ograniczenie= json_decode($entityBody)->{'ograniczenie'};
 	$nazwa= json_decode($entityBody)->{'nazwa'};
@@ -326,9 +326,9 @@ public function addWyklad(){
 public function editWyklad(){
 	$entityBody = file_get_contents('php://input');
 	$id= json_decode($entityBody)->{'id'};
-	$id_blokobieralny= json_decode($entityBody)->{'blokobieralny'};
-	$id_kierunek= json_decode($entityBody)->{'kierunek'};
-	$id_prowadzacy= json_decode($entityBody)->{'prowadzacy'};
+	$id_blokobieralny= json_decode($entityBody)->{'id_blokobieralny'};
+	$id_kierunek= json_decode($entityBody)->{'id_kierunek'};
+	$id_prowadzacy= json_decode($entityBody)->{'id_prowadzacy'};
 	$ilosc_godzin= json_decode($entityBody)->{'ilosc_godzin'};
 	$ograniczenie= json_decode($entityBody)->{'ograniczenie'};
 	$nazwa= json_decode($entityBody)->{'nazwa'};
@@ -455,7 +455,7 @@ public function getWyklad($id){
 public function getWyklady(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT pr.id, pr.id_blokobieralny, pr.id_kierunek, k.nazwa, pr.id_prowadzacy, u.imie, u.nazwisko,pr.nazwa, pr.ilosc_godzin, pr.ograniczenie,  (SELECT COUNT(id) FROM wybor WHERE id_przedmiot=pr.id)as total FROM przedmiot pr join prowadzacy p ON (pr.id_prowadzacy = p.id) join uzykownik u on(u.id = p.id_uzytkownik) join kierunek k on(pr.id_kierunek = k.id);";
+	$sql = "SELECT pr.id, pr.id_blokobieralny, pr.id_kierunek, k.nazwa, pr.id_prowadzacy, u.imie, u.nazwisko, pr.nazwa, pr.ilosc_godzin, pr.ograniczenie,  (SELECT COUNT(id) FROM wybor WHERE id_przedmiot=pr.id)as total FROM przedmiot pr join prowadzacy p ON (pr.id_prowadzacy = p.id) join uzykownik u on(u.id = p.id_uzytkownik) join kierunek k on(pr.id_kierunek = k.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {
@@ -466,7 +466,7 @@ public function getWyklady(){
 public function getStudents(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, s.id_kierunek, k.nazwa FROM student s join uzykownik u on (u.id = s.id_uzytkownik) left join kierunek k on (s.id_kierunek = k.id);";
+	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, s.id_kierunek, k.nazwa as kierunek FROM student s join uzykownik u on (u.id = s.id_uzytkownik) left join kierunek k on (s.id_kierunek = k.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {
@@ -488,7 +488,7 @@ public function getStudentsById($id){
 public function getProwadzacy(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, k.nazwa as katedra_nazwa, t.nazwa as tytul_nazwa FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik) left join katedra k on (p.id_katedra = k.id) left join tytul t on (p.id_tytul = t.id);";
+	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, k.nazwa as katedra, t.nazwa as tytul FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik) left join katedra k on (p.id_katedra = k.id) left join tytul t on (p.id_tytul = t.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {

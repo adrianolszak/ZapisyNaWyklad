@@ -5,7 +5,7 @@
     <div class="form-group col-md-6">
       <label for="inputBlock">blok</label>
       <select id="inputBlock" ng-model="formData.id_blokobieralny">
-        <option ng-repeat="b in blocks" value="{{b.id}}">{{b.id}}</option>
+        <option ng-repeat="b in blocks" value="{{b.id}}">{{b.nazwa}}</option>
       </select>
     </div>
     <div class="form-group col-md-6">
@@ -27,12 +27,14 @@
     <div class="form-group col-md-6">
       <label for="inputKierunek">Kierunek</label>
       <select id="inputKierunek" ng-model="formData.id_kierunek">
-        <option ng-repeat="k in kierunki" value="{{k.nazwa}}">{{k.id}}</option>
+        <option ng-repeat="k in kierunki" value="{{k.id}}">{{k.nazwa}}</option>
       </select>
     </div>
     <div class="form-group col-md-6">
-      <!--<label for="inputKierunek">Prowadzący</label>
-      <input type="text" class="form-control" id="inputName" placeholder="prowadzacy" ng-model="formData.id_prowadzacy">-->
+      <label for="inputKierunek">Prowadzący</label>
+      <select id="inputKierunek" ng-model="formData.id_prowadzacy">
+        <option ng-repeat="p in prowadzacy" value="{{p.id}}">{{p.tytul}} {{p.imie}} {{p.nazwisko}}</option>
+      </select>
     </div>
   </div>
   <button type="submit" class="btn btn-primary">Zapisz</button>

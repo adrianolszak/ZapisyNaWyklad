@@ -12,10 +12,15 @@ angular.module('systemApp', ['ui.router'])
          templateUrl: 'app_users.html',
          controller: 'usersController'
       })
-      .state('app.userEdit', {
-         url: '/users/:uid',
-         templateUrl: 'app_user_edit.html',
-         controller: 'userEditController'
+      .state('app.studentEdit', {
+         url: '/student/:uid',
+         templateUrl: 'app_edit_student.html',
+         controller: 'editStudentController'
+      })
+      .state('app.prowadzacyEdit', {
+         url: '/prowadzacy/:uid',
+         templateUrl: 'app_edit_prowadzacy.html',
+         controller: 'editProwadzacyController'
       })
       .state('app.addStudent', {
          url: '/addStudent',
@@ -46,21 +51,32 @@ angular.module('systemApp', ['ui.router'])
 })
 .controller('enrollLecturesController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
+  $http({
+    url: 'srv/RestApi.php/lectures/',
+    method: 'GET',
+    transformResponse: myParseJSON
+  }).success(function (response) {
+     $scope.lectures = response;
+  });
 })
 .controller('adminLecturesController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
   $http({
-    url: 'srv/RestApi.php/lectures/'+cuid.toString(),
+    url: 'srv/RestApi.php/lectures/',
     method: 'GET',
-    transformResponse: function (data) {
-        return data.match(/[^{}]+/g).map(function(line) {
-            return JSON.parse("{"+line+"}");
-        });
-    }
+    transformResponse: myParseJSON
   }).success(function (response) {
      $scope.lectures = response;
-  });
-  
+  });  
+  $scope.lectureDelete = function(id, index){
+    var myurl = 'srv/RestApi.php/wyklad/'+id.toString();
+    $http({
+      url: myurl,
+      method: 'DELETE'
+    }).success(function (response) {
+       $scope.lectures.splice(index, 1);
+    });
+  }
 })
 .controller('addLecturesController', function($scope, $http, $templateCache, $state, $window) {
   $window.scrollTo(0, 0);
@@ -68,24 +84,23 @@ angular.module('systemApp', ['ui.router'])
   $http({
     url: 'srv/RestApi.php/blocks',
     method: 'GET',
-    transformResponse: function (data) {
-        return data.match(/[^{}]+/g).map(function(line) {
-            return JSON.parse("{"+line+"}");
-        });
-    }
+    transformResponse: myParseJSON
   }).success(function (response) {
      $scope.blocks = response;
   });
   $http({
     url: 'srv/RestApi.php/kierunki',
     method: 'GET',
-    transformResponse: function (data) {
-        return data.match(/[^{}]+/g).map(function(line) {
-            return JSON.parse("{"+line+"}");
-        });
-    }
+    transformResponse: myParseJSON
   }).success(function (response) {
      $scope.kierunki = response;
+  });
+  $http({
+    url: 'srv/RestApi.php/prowadzacy',
+    method: 'GET',
+    transformResponse: myParseJSON
+  }).success(function (response) {
+     $scope.prowadzacy = response;
   });
   $scope.processForm = function() {
       $scope.formData.id_prowadzacy = cuid;
@@ -107,24 +122,37 @@ angular.module('systemApp', ['ui.router'])
 .controller('usersController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
   $http({
-    url: 'srv/RestApi.php/users',
+    url: 'srv/RestApi.php/students',
     method: 'GET',
-    transformResponse: function (data) {
-        return data.match(/[^{}]+/g).map(function(line) {
-            return JSON.parse("{"+line+"}");
-        });
-    }
+    transformResponse: myParseJSON
   }).success(function (response) {
-     $scope.users = response;
+     $scope.students = response;
   });
-  $scope.userDelete = function(uid, index){
+  $http({
+    url: 'srv/RestApi.php/prowadzacy',
+    method: 'GET',
+    transformResponse: myParseJSON
+  }).success(function (response) {
+     $scope.prowadzacy = response;
+  });
+  $scope.studentDelete = function(uid, index){
     var myurl = 'srv/RestApi.php/students/'+uid.toString();
     $http({
       url: myurl,
       method: 'DELETE'
     }).success(function (response) {
+       console.log($scope.student);
+       $scope.students.splice(index, 1);
+    });
+  }
+  $scope.prowadzacyDelete = function(uid, index){
+    var myurl = 'srv/RestApi.php/prowadzacy/'+uid.toString();
+    $http({
+      url: myurl,
+      method: 'DELETE'
+    }).success(function (response) {
        console.log(myurl);
-       $scope.users.splice(index, 1);
+       $scope.prowadzacy.splice(index, 1);
     });
   }
 })
@@ -151,6 +179,7 @@ angular.module('systemApp', ['ui.router'])
         cache: $templateCache
       }).then(function mySuccess(response) {
         console.log(response);
+        console.log($scope.formData.kierunek);
         $state.go('app.users');
       }, function myError(response) {
         console.log(response);
@@ -164,22 +193,14 @@ angular.module('systemApp', ['ui.router'])
   $http({
     url: 'srv/RestApi.php/katedry',
     method: 'GET',
-    transformResponse: function (data) {
-        return data.match(/[^{}]+/g).map(function(line) {
-            return JSON.parse("{"+line+"}");
-        });
-    }
+    transformResponse: myParseJSON
   }).success(function (response) {
      $scope.katedry = response;
   });
   $http({
     url: 'srv/RestApi.php/tytuly',
     method: 'GET',
-    transformResponse: function (data) {
-        return data.match(/[^{}]+/g).map(function(line) {
-            return JSON.parse("{"+line+"}");
-        });
-    }
+    transformResponse: myParseJSON
   }).success(function (response) {
      $scope.title = response;
   });
@@ -198,16 +219,14 @@ angular.module('systemApp', ['ui.router'])
       });
       return false;
   };
-})
-.controller('userEditController', function($scope, $http, $stateParams, $templateCache, $window) {
-    
+});
+/*
+.controller('editStudentController', function($scope, $http, $stateParams, $templateCache, $window) {
     $window.scrollTo(0, 0);
-    $scope.mark = {};
-    $scope.can = {};
     $http({
           method: "GET",
-          url: "srv/RestApi.php/users",
-          data: $stateParams.surveyId,
+          url: "srv/RestApi.php/student",
+          data: $stateParams.uid,
           headers: {'Content-Type': 'application/x-www-form-urlencoded'},
           cache: $templateCache
         }).then(function mySuccess(response) {
@@ -215,4 +234,24 @@ angular.module('systemApp', ['ui.router'])
         }, function myError(response) {
             console.log(response);
         });
-});
+})
+.controller('editProwadzacyController', function($scope, $http, $stateParams, $templateCache, $window) {
+    $window.scrollTo(0, 0);
+    $http({
+          method: "GET",
+          url: "srv/RestApi.php/prowadzacy",
+          data: $stateParams.uid,
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          cache: $templateCache
+        }).then(function mySuccess(response) {
+            console.log(response);
+        }, function myError(response) {
+            console.log(response);
+        });
+});*/
+
+function myParseJSON(data) {
+  return data.match(/[^{}]+/g).map(function(line) {
+      return JSON.parse("{"+line+"}");
+  });
+}

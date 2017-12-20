@@ -24,14 +24,14 @@
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="inputKatedra">Katedra</label>
-      <select id="inputKatedra" ng-model="formData.katedra">
-        <option ng-repeat="k in katedry" value="{{k.nazwa}}">{{k.nazwa}}</option>
+      <select id="inputKatedra" ng-model="formData.id_katedra">
+        <option ng-repeat="k in katedry" value="{{k.id}}">{{k.nazwa}}</option>
       </select>
     </div>
     <div class="form-group col-md-6">
       <label for="inputTitle">Tytuł naukowy</label>
-      <select id="inputTitle" ng-model="formData.kierunek">
-        <option ng-repeat="t in title" value="{{t.nazwa}}">{{t.nazwa}}</option>
+      <select id="inputTitle" ng-model="formData.id_tytul">
+        <option ng-repeat="t in title" value="{{t.id}}">{{t.nazwa}}</option>
       </select>
     </div>
   </div>

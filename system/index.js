@@ -14,12 +14,6 @@ $(".boopa-nav-profile").on("click", function(){
 $("#boopa-nav-toggle").on("click", function(){
   toggleMainMenu();
 });
-container.on("click", function(){
-  closeMenus();
-});
-searchbar.on("click", function(){
-  searchbar.addClass("hover");
-});
 
 function mouseMoveHandler(e) {
     if (e.pageX < 5) {
