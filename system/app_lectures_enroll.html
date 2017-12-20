@@ -5,9 +5,10 @@
     <tr>
       <th scope="col">blok</th>
       <th scope="col">nazwa</th>
+      <th scope="col">prowadzacy</th>
+      <th scope="col">kierunek</th>
       <th scope="col">ilość godzin</th>
-      <th scope="col">limit miejsc</th>
-      <th></th>
+      <th scope="col">ilość zapisanych</th>
       <th></th>
     </tr>
   </thead>
@@ -15,9 +16,14 @@
     <tr ng-repeat="x in lectures">
       <th scope="row">{{x.id_blokobieralny}}</th>
       <td>{{ x.nazwa }}</td>
+      <td>{{ x.imie }} {{ x.nazwisko }}</td>
+      <td>{{ x.kierunek }}</td>
       <td>{{ x.ilosc_godzin }}</td>
-      <td>{{ x.ograniczenie }}</td>
-      <td><button class="btn">Zapisz się</button></td>
+      <td>{{ x.total }}/{{ x.ograniczenie }}</td>
+      <td>
+        <span ng-if="!enrolledTo(x.id)"><button class="btn btn-primary" ng-click="enroll(uid, x.id)">Zapisz się</button></span>
+        <span ng-if="enrolledTo(x.id)"><button class="btn btn-success" ng-click="disenroll(uid, x.id)">Wypisz się</button></span>
+      </td>
     </tr>
   </tbody>
 </table>

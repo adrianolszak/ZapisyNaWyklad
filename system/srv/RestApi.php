@@ -70,6 +70,10 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "wyklad"){
 		$sql = $this->deleteWyklad($key);
 		$db->getDB()->query($sql);	
+		}
+    if($table == "wybor"){
+		$sql = $this->deleteWybor($key);
+		$db->getDB()->query($sql);	
 		}	
 	if($table == "prowadzacy"){
 		$sql = $this->deleteProwadzacy($key);
@@ -397,6 +401,13 @@ public function setWybor(){
 		$db->getDB()->query($sqlAdd );
 		}
 	}
+public function deleteWybor(){
+	$entityBody = file_get_contents('php://input');
+	$id_student= json_decode($entityBody)->{'id_student'};
+	$id_przedmiot= json_decode($entityBody)->{'id_przedmiot'};
+	$sql = "DELETE FROM `system`.`wybor` WHERE id_student = '$id_student' AND id_przedmiot='$id_przedmiot';";
+	return $sql;	
+}
 public function editWybor(){
 	$entityBody = file_get_contents('php://input');
 	$id = json_decode($entityBody)->{'id'};
@@ -455,7 +466,7 @@ public function getWyklad($id){
 public function getWyklady(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT pr.id, pr.id_blokobieralny, pr.id_kierunek, k.nazwa, pr.id_prowadzacy, u.imie, u.nazwisko, pr.nazwa, pr.ilosc_godzin, pr.ograniczenie,  (SELECT COUNT(id) FROM wybor WHERE id_przedmiot=pr.id)as total FROM przedmiot pr join prowadzacy p ON (pr.id_prowadzacy = p.id) join uzykownik u on(u.id = p.id_uzytkownik) join kierunek k on(pr.id_kierunek = k.id);";
+	$sql = "SELECT pr.id, pr.id_blokobieralny, pr.id_kierunek, k.nazwa as kierunek, pr.id_prowadzacy, u.imie, u.nazwisko, pr.nazwa, pr.ilosc_godzin, pr.ograniczenie,  (SELECT COUNT(id) FROM wybor WHERE id_przedmiot=pr.id)as total FROM przedmiot pr join prowadzacy p ON (pr.id_prowadzacy = p.id) join uzykownik u on(u.id = p.id_uzytkownik) join kierunek k on(pr.id_kierunek = k.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {

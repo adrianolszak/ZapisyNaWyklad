@@ -5,19 +5,21 @@
     <tr>
       <th scope="col">blok</th>
       <th scope="col">nazwa</th>
+      <th scope="col">prowadzacy</th>
+      <th scope="col">kierunek</th>
       <th scope="col">ilość godzin</th>
-      <th scope="col">limit miejsc</th>
-      <th></th>
+      <th scope="col">ilość zapisanych</th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     <tr ng-repeat="x in lectures">
-      <th scope="row">{{x.blokobieralny}}</th>
+      <th scope="row">{{x.id_blokobieralny}}</th>
       <td>{{ x.nazwa }}</td>
+      <td>{{ x.imie }} {{ x.nazwisko }}</td>
+      <td>{{ x.kierunek }}</td>
       <td>{{ x.ilosc_godzin }}</td>
-      <td>{{ x.ograniczenie }}</td>
-      <td><a ui-sref-active="active" ui-sref="app.lectureEdit({uid: x.id})"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
+      <td>{{ x.total }}/{{ x.ograniczenie }}</td>
       <td><a ng-click="lectureDelete(x.id, $index)"><i class="fa fa-times" aria-hidden="true"></i></a></td>
     </tr>
   </tbody>

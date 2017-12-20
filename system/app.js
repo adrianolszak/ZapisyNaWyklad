@@ -51,18 +51,67 @@ angular.module('systemApp', ['ui.router'])
 })
 .controller('enrollLecturesController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
-  $http({
-    url: 'srv/RestApi.php/lectures/',
-    method: 'GET',
-    transformResponse: myParseJSON
-  }).success(function (response) {
-     $scope.lectures = response;
-  });
+  $scope.enrolled = [];
+  $scope.refresh = function(){
+    $http({
+      url: 'srv/RestApi.php/wyklady/',
+      method: 'GET',
+      transformResponse: myParseJSON
+    }).success(function (response) {
+       $scope.lectures = response;
+    });
+    $http({
+      url: 'srv/RestApi.php/wyborOsoby/'+cuid.toString(),
+      method: 'GET',
+      transformResponse: myParseJSON
+    }).success(function (response) {
+      $scope.enrolled = response;
+    });
+  };
+  $scope.enrolledTo = function(id){
+    if(typeof $scope.enrolled !== 'undefined' && $scope.enrolled.length > 0){
+      var r = $scope.enrolled.reduce(function(res, curr){
+        return res || (curr.id_przedmiot==id);
+      }, false);
+      return r;
+    }else{
+      return false;
+    }
+  };
+  $scope.enroll = function(uid, lid){
+    var myurl = 'srv/RestApi.php/wybor/';
+    $http({
+      url: myurl,
+      method: 'POST',
+      data: {
+        'id_student': cuid,
+        'id_przedmiot': lid
+      },
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    }).success(function (response) {
+       $scope.refresh();
+    });
+  };
+  $scope.disenroll = function(uid, lid){
+    var myurl = 'srv/RestApi.php/wybor/';
+    $http({
+      url: myurl,
+      method: 'DELETE',
+      data: {
+        'id_student': cuid,
+        'id_przedmiot': lid
+      },
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    }).success(function (response) {
+       $scope.refresh();
+    });
+  };
+  $scope.refresh();
 })
 .controller('adminLecturesController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
   $http({
-    url: 'srv/RestApi.php/lectures/',
+    url: 'srv/RestApi.php/wyklady/',
     method: 'GET',
     transformResponse: myParseJSON
   }).success(function (response) {
@@ -103,7 +152,6 @@ angular.module('systemApp', ['ui.router'])
      $scope.prowadzacy = response;
   });
   $scope.processForm = function() {
-      $scope.formData.id_prowadzacy = cuid;
       $http({
         method: "POST",
         url: "srv/RestApi.php/wyklad",
@@ -111,10 +159,10 @@ angular.module('systemApp', ['ui.router'])
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         cache: $templateCache
       }).then(function mySuccess(response) {
-        console.log(response);
+        //console.log(response);
         $state.go('app.users');
       }, function myError(response) {
-        console.log(response);
+        //console.log(response);
       });
       return false;
   };
@@ -141,7 +189,6 @@ angular.module('systemApp', ['ui.router'])
       url: myurl,
       method: 'DELETE'
     }).success(function (response) {
-       console.log($scope.student);
        $scope.students.splice(index, 1);
     });
   }
@@ -151,7 +198,6 @@ angular.module('systemApp', ['ui.router'])
       url: myurl,
       method: 'DELETE'
     }).success(function (response) {
-       console.log(myurl);
        $scope.prowadzacy.splice(index, 1);
     });
   }
@@ -178,11 +224,9 @@ angular.module('systemApp', ['ui.router'])
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         cache: $templateCache
       }).then(function mySuccess(response) {
-        console.log(response);
-        console.log($scope.formData.kierunek);
         $state.go('app.users');
       }, function myError(response) {
-        console.log(response);
+        //console.log(response);
       });
       return false;
   };
@@ -212,10 +256,9 @@ angular.module('systemApp', ['ui.router'])
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         cache: $templateCache
       }).then(function mySuccess(response) {
-        console.log(response);
         $state.go('app.users');
       }, function myError(response) {
-        console.log(response);
+        //console.log(response);
       });
       return false;
   };
@@ -251,7 +294,8 @@ angular.module('systemApp', ['ui.router'])
 });*/
 
 function myParseJSON(data) {
-  return data.match(/[^{}]+/g).map(function(line) {
-      return JSON.parse("{"+line+"}");
-  });
+  if(data)
+    return data.match(/[^{}]+/g).map(function(line) {
+        return JSON.parse("{"+line+"}");
+    });
 }
