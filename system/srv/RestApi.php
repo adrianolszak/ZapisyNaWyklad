@@ -55,6 +55,11 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
 	if($table == "zapisy" and $key != null){($this->getZapisy($key));}
 	if($table == "wyklady" and $key != null){($this->getWyklad($key));}
 	if($table == "wyklady" and $key == null) {$this->getWyklady();}
+	if($table == "students" and $key == null) {$this->getStudents();}
+	if($table == "prowadzacy" and $key == null) {$this->getProwadzacy();}
+	//if($table == "students" and $key != null) {$this->getStudentsById($key);}
+	//if($table == "prowadzacy" and $key != null) {$this->getProwadzacyById($key);}
+
 }elseif ($_SERVER['REQUEST_METHOD'] == "DELETE"){
 	if($table == "students"){
 	$sql = $this->deleteStudent($key);
@@ -448,6 +453,50 @@ public function getWyklad($id){
 	}
 }
 public function getWyklady(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT * FROM przedmiot";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getStudents(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT * FROM student s join uzykownik u on (u.id = id_uzytkownik);";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getStudentsById($id){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql = "SELECT * FROM student s join uzykownik u on (u.id = id_uzytkownik);";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getProwadzacy(){
+	$db = new dbConnnection();
+	$db->db_connect();
+	$sql ="SELECT * FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik);";
+	$result = $db->getDB()->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	}
+}
+public function getProwadzacyById($id){
 	$db = new dbConnnection();
 	$db->db_connect();
 	$sql = "SELECT * FROM przedmiot";
