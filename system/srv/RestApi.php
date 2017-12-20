@@ -455,7 +455,7 @@ public function getWyklad($id){
 public function getWyklady(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT * FROM przedmiot";
+	$sql = "SELECT pr.id, pr.id_blokobieralny, pr.id_kierunek, k.nazwa, pr.id_prowadzacy, u.imie, u.nazwisko,pr.nazwa, pr.ilosc_godzin, pr.ograniczenie,  (SELECT COUNT(id) FROM wybor WHERE id_przedmiot=pr.id)as total FROM przedmiot pr join prowadzacy p ON (pr.id_prowadzacy = p.id) join uzykownik u on(u.id = p.id_uzytkownik) join kierunek k on(pr.id_kierunek = k.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {
@@ -466,7 +466,7 @@ public function getWyklady(){
 public function getStudents(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT * FROM student s join uzykownik u on (u.id = id_uzytkownik);";
+	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, s.id_kierunek, k.nazwa FROM student s join uzykownik u on (u.id = s.id_uzytkownik) left join kierunek k on (s.id_kierunek = k.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {
@@ -488,7 +488,7 @@ public function getStudentsById($id){
 public function getProwadzacy(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql ="SELECT * FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik);";
+	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, k.nazwa as katedra_nazwa, t.nazwa as tytul_nazwa FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik) left join katedra k on (p.id_katedra = k.id) left join tytul t on (p.id_tytul = t.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {
