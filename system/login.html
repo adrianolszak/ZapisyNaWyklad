@@ -1,0 +1,35 @@
+
+<style>
+
+  .login-page-container{
+    margin: 5% auto;
+    max-width: 600px;
+    padding: 50px;
+    background-color: beige;
+    z-index: 10001;
+  }
+  .overlay{
+    position: fixed;
+    z-index: 10000;
+    top:0; left:0;
+    right:0;
+    max-width: 100vw;
+    width:100vw;
+    height:100vh;
+    background-color: aliceblue;
+    margin:0; padding:0;
+  }
+</style>
+<div class="overlay"></div>
+  <div class="card login-page-container">
+    <form ng-submit="processForm()">
+      <h3>Zaloguj się</h3>
+      <div class="form-group">        
+          <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Login" ng-model="formData.login">
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Hasło" ng-model="formData.haslo">
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+  </div>

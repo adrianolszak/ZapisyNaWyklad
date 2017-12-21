@@ -1,11 +1,28 @@
-var cuid = 1;
+var user = {
+  id: 1,
+  imie: "imie",
+  nazwisko: "nazwisko",
+  access: 0,
+  accessName: "admin"
+}
 
 angular.module('systemApp', ['ui.router'])
 .config(function($stateProvider, $urlRouterProvider){
    $stateProvider
       .state('app', {
          url: '/app',
-         templateUrl: 'app.html'
+         templateUrl: 'app.html',
+         controller: 'appController'
+      })
+      .state('app.login', {
+         url: '/login',
+         templateUrl: 'login.html',
+         controller: 'loginController'
+      })
+      .state('app.dashboard', {
+         url: '/dashboard',
+         templateUrl: 'app_dashboard.html',
+         controller: 'appController'
       })
       .state('app.users', {
          url: '/users',
@@ -37,6 +54,11 @@ angular.module('systemApp', ['ui.router'])
          templateUrl: 'app_lectures_enroll.html',
          controller: 'enrollLecturesController'
       })
+      .state('app.myLectures', {
+         url: '/myLectures',
+         templateUrl: 'app_myLectures.html',
+         controller: 'myLecturesController'
+      })
       .state('app.lecturesAdmin', {
          url: '/adminLectures',
          templateUrl: 'app_lectures_admin.html',
@@ -47,7 +69,72 @@ angular.module('systemApp', ['ui.router'])
          templateUrl: 'app_lectures_add.html',
          controller: 'addLecturesController'
       });
-   $urlRouterProvider.otherwise('/app/users');
+   $urlRouterProvider.otherwise('/app/login');
+})
+.controller('loginController', function($scope, $http, $templateCache, $state, $window) {
+  $scope.processForm = function() {
+      $http({
+        method: "POST",
+        url: "srv/RestApi.php/login",
+        data: $scope.formData,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        cache: $templateCache
+      }).then(function mySuccess(response) {
+        if(response.data == "0"){
+          window.alert("błędne dane logowania");
+        }else{
+          user = {
+            id: response.data.id,
+            imie: response.data.imie,
+            nazwisko: response.data.nazwisko
+          };
+          $http({
+            method: "GET",
+            url: "srv/RestApi.php/uprawnienia/"+user.id.toString()
+          }).then(function mySuccess(response) {
+            user.accessName = response.data;
+            switch(user.accessName) {
+                case "admin":
+                    user.access=0;
+                    break;
+                case "student":
+                    user.access=2;
+                    break;
+                case "wykladowca":
+                    user.access=1;
+                    break;
+                default:
+                    $state.go("app.login");
+                    return false;
+            };
+          });
+          $scope.$parent.user = user;
+          $state.go('app.dashboard');
+        }
+      }, function myError(response) {
+      });
+      return false;
+  };
+})
+.controller('appController', function($scope, $http, $state, $window) {
+  $scope.user = user;
+  if(user.id == 1){
+    $state.go("app.login");
+  }
+})
+.controller('myLecturesController', function($scope, $http, $window) {
+  $window.scrollTo(0, 0);
+  $scope.refresh = function(){
+    $http({
+      url: 'srv/RestApi.php/wyborOsoby/'+user.id.toString(),
+      method: 'GET',
+      transformResponse: myParseJSON
+    }).success(function (response) {
+      $scope.lectures = response;
+      console.log();
+    });
+  };
+  $scope.refresh();
 })
 .controller('enrollLecturesController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
@@ -61,7 +148,7 @@ angular.module('systemApp', ['ui.router'])
        $scope.lectures = response;
     });
     $http({
-      url: 'srv/RestApi.php/wyborOsoby/'+cuid.toString(),
+      url: 'srv/RestApi.php/wyborOsoby/'+user.id.toString(),
       method: 'GET',
       transformResponse: myParseJSON
     }).success(function (response) {
@@ -84,7 +171,7 @@ angular.module('systemApp', ['ui.router'])
       url: myurl,
       method: 'POST',
       data: {
-        'id_student': cuid,
+        'id_student': user.id,
         'id_przedmiot': lid
       },
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -98,7 +185,7 @@ angular.module('systemApp', ['ui.router'])
       url: myurl,
       method: 'DELETE',
       data: {
-        'id_student': cuid,
+        'id_student': user.id,
         'id_przedmiot': lid
       },
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -111,7 +198,7 @@ angular.module('systemApp', ['ui.router'])
 .controller('adminLecturesController', function($scope, $http, $window) {
   $window.scrollTo(0, 0);
   $http({
-    url: 'srv/RestApi.php/wyklady/',
+    url: 'srv/RestApi.php/wyklady',
     method: 'GET',
     transformResponse: myParseJSON
   }).success(function (response) {
@@ -160,7 +247,7 @@ angular.module('systemApp', ['ui.router'])
         cache: $templateCache
       }).then(function mySuccess(response) {
         //console.log(response);
-        $state.go('app.users');
+        $state.go('app.dashboard');
       }, function myError(response) {
         //console.log(response);
       });
@@ -191,7 +278,7 @@ angular.module('systemApp', ['ui.router'])
     }).success(function (response) {
        $scope.students.splice(index, 1);
     });
-  }
+  };
   $scope.prowadzacyDelete = function(uid, index){
     var myurl = 'srv/RestApi.php/prowadzacy/'+uid.toString();
     $http({
@@ -200,7 +287,7 @@ angular.module('systemApp', ['ui.router'])
     }).success(function (response) {
        $scope.prowadzacy.splice(index, 1);
     });
-  }
+  };
 })
 .controller('addStudentController', function($scope, $http, $templateCache, $state, $window) {
   $window.scrollTo(0, 0);
@@ -263,35 +350,7 @@ angular.module('systemApp', ['ui.router'])
       return false;
   };
 });
-/*
-.controller('editStudentController', function($scope, $http, $stateParams, $templateCache, $window) {
-    $window.scrollTo(0, 0);
-    $http({
-          method: "GET",
-          url: "srv/RestApi.php/student",
-          data: $stateParams.uid,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          cache: $templateCache
-        }).then(function mySuccess(response) {
-            console.log(response);
-        }, function myError(response) {
-            console.log(response);
-        });
-})
-.controller('editProwadzacyController', function($scope, $http, $stateParams, $templateCache, $window) {
-    $window.scrollTo(0, 0);
-    $http({
-          method: "GET",
-          url: "srv/RestApi.php/prowadzacy",
-          data: $stateParams.uid,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          cache: $templateCache
-        }).then(function mySuccess(response) {
-            console.log(response);
-        }, function myError(response) {
-            console.log(response);
-        });
-});*/
+
 
 function myParseJSON(data) {
   if(data)

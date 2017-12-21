@@ -3,14 +3,14 @@
 <form class="survey" ng-submit="processForm()">
    <div class="form-row">
     <div class="form-group col-md-6">
+      <label for="inputName">Nazwa</label>
+      <input type="text" class="form-control" id="inputName" placeholder="nazwa" ng-model="formData.nazwa">
+    </div>
+    <div class="form-group col-md-6">
       <label for="inputBlock">blok</label>
       <select id="inputBlock" ng-model="formData.id_blokobieralny">
         <option ng-repeat="b in blocks" value="{{b.id}}">{{b.nazwa}}</option>
       </select>
-    </div>
-    <div class="form-group col-md-6">
-      <label for="inputName">Nazwa</label>
-      <input type="text" class="form-control" id="inputName" placeholder="nazwa" ng-model="formData.nazwa">
     </div>
   </div>
   <div class="form-row">
@@ -33,7 +33,7 @@
     <div class="form-group col-md-6">
       <label for="inputKierunek">Prowadzący</label>
       <select id="inputKierunek" ng-model="formData.id_prowadzacy">
-        <option ng-repeat="p in prowadzacy" value="{{p.id}}">{{p.tytul}} {{p.imie}} {{p.nazwisko}}</option>
+        <option ng-repeat="p in prowadzacy" value="{{p.id_prowadzacy}}">{{p.tytul}} {{p.imie}} {{p.nazwisko}}</option>
       </select>
     </div>
   </div>

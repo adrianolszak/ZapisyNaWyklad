@@ -1,0 +1,27 @@
+<style>
+  .card{
+    width: 300px;
+    height: 100px;
+    float: left;
+    margin: 10px;
+  }
+</style>
+ 
+
+ <a href="#" ui-sref="app.users" ng-if="user.access==0"><div class="card"><div class="card-body">
+  <h2>Zarządzaj użytkownikami</h2>
+</div></div></a>
+
+
+ <a href="#" ui-sref="app.lecturesEnroll" ng-if="user.access==2"><div class="card"><div class="card-body">
+  <h2>Zapisz się na wykłady</h2>
+</div></div></a>
+
+
+ <a href="#" ui-sref="app.myLectures" ng-if="user.access==2"><div class="card"><div class="card-body">
+  <h2>Moje wykłady</h2>
+</div></div></a>
+
+ <a href="#" ui-sref="app.lecturesAdmin" ng-if="user.access<2"><div class="card"><div class="card-body">
+  <h2>Zarządzaj wykładami</h2>
+</div></div></a>

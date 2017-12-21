@@ -22,6 +22,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 		$sqlProwadzacy = $this->addProwadzacy();
 		$db->getDB()->query($sqlProwadzacy);
 	}
+    if($table == "login"){
+		$this->checkLogin();
+	}
 	if($table == "admin"){
 		//$sql = $this->addUser();
 		//$db->getDB()->query($sql);
@@ -269,6 +272,28 @@ public function addStudent(){
 	}
 	return null;
 }
+public function checkLogin(){
+    $entityBody = file_get_contents('php://input');
+	$login = json_decode($entityBody)->{'login'};
+	$haslo = json_decode($entityBody)->{'haslo'};
+	$sql = "SELECT * FROM uzykownik WHERE login= '$login' AND haslo='$haslo'";
+	
+    $db = new dbConnnection();
+	$db->db_connect();
+	$entityBody = file_get_contents('php://input');
+	$login = json_decode($entityBody)->{'login'};
+	$haslo = json_decode($entityBody)->{'haslo'};
+	$sql = "SELECT * FROM uzykownik WHERE login= '$login' AND haslo='$haslo'";
+	$result = $db->getDB()->query($sql);
+
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo json_encode($row);
+		}
+	} else {
+		echo "0";
+	}
+}
 public function addAdmin(){
 	$db = new dbConnnection();
 	$db->db_connect();
@@ -370,7 +395,7 @@ public function editUser(){
 public function getWyborByUser($id){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT w.id, w.id_student, w.id_przedmiot, p.nazwa FROM wybor w join przedmiot p on p.id = w.id_przedmiot WHERE w.id_student='$id';";
+	$sql = "SELECT w.id, w.id_student, w.id_przedmiot, p.nazwa, p.ilosc_godzin FROM wybor w join przedmiot p on p.id = w.id_przedmiot WHERE w.id_student='$id';";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {
@@ -430,6 +455,12 @@ public function getWyborByPrzedmiot($id){
 public function getDegree($key){
 	$db = new dbConnnection();
 	$db->db_connect();
+    $sqlAdmin = "SELECT * FROM admin WHERE id_uzytkownik= '$key';";
+	$resultAdmin = $db->getDB()->query($sqlAdmin);
+	if ($resultAdmin->num_rows > 0) {
+		echo "admin";
+		return;
+	}
 	$sqlStudent = "SELECT * FROM student WHERE id_uzytkownik= '$key';";
 	$resultStudent = $db->getDB()->query($sqlStudent);
 	if ($resultStudent->num_rows > 0) {
@@ -441,8 +472,8 @@ public function getDegree($key){
 	if ($resultProwadzacy->num_rows > 0) {
 		echo "wykladowca";
 		return;
-	}
-	echo "admin";
+	}    
+	echo "brak";
 }
 public function getZapisy($id){
 	$db = new dbConnnection();
@@ -499,7 +530,7 @@ public function getStudentsById($id){
 public function getProwadzacy(){
 	$db = new dbConnnection();
 	$db->db_connect();
-	$sql = "SELECT u.id, u.imie, u.nazwisko, u.login, u.haslo, k.nazwa as katedra, t.nazwa as tytul FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik) left join katedra k on (p.id_katedra = k.id) left join tytul t on (p.id_tytul = t.id);";
+	$sql = "SELECT u.id, p.id as id_prowadzacy, u.imie, u.nazwisko, u.login, u.haslo, k.nazwa as katedra, t.nazwa as tytul FROM prowadzacy p join uzykownik u on (u.id = p.id_uzytkownik) left join katedra k on (p.id_katedra = k.id) left join tytul t on (p.id_tytul = t.id);";
 	$result = $db->getDB()->query($sql);
 	if ($result->num_rows > 0) {
 		while($row = $result->fetch_assoc()) {

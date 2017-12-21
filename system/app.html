@@ -10,35 +10,27 @@
 <!-- main menu -->
 <nav id="boopa-nav-menu" class="boopa-nav-menu">
   <ul id="boopa-nav-accordion" class="nav flex-column boopa-nav-accordion" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link collapsed" ui-sref=".users">Użytkownicy</a>
+    <li class="nav-item" ng-if="user.access==0">
+      <a class="nav-link collapsed" ui-sref=".users" >Użytkownicy</a>
+    </li>
+    <li class="nav-item" ng-if="user.access<2">
+      <a class="nav-link collapsed" ui-sref=".lecturesAdmin">Zarządzaj wykładami</a>
+    </li>
+    <li class="nav-item" ng-if="user.access==2">
+      <a class="nav-link collapsed" ui-sref=".lecturesEnroll">Zapisy</a>
+    </li>
+    <li class="nav-item" ng-if="user.access==2">
+      <a class="nav-link collapsed" ui-sref=".myLectures">Moje wykłady</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link collapsed" ui-sref=".lecturesAdmin">Wykłady - admin</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link collapsed" ui-sref=".lecturesEnroll">Wykłady - zapisy</a>
-    </li>
+        <a class="nav-link collapsed" ui-sref="app.login">Wyloguj</a>
+      </li>
   </ul>
   <div class="boopa-nav-profile">
-    <div class="boopa-nav-profile-header clearfix">
-      <img class="rounded-circle profile-image float-left" src="https://fvdmedia.userecho.com/s/cache/d9/95/d995b54b18459255d4a16415b582a8ac.png">
-      <div class="profile-name">Arkadiusz Lis</div>
-      <div class="profile-lbg">Admin</div>
-      <div class="float-right">
-        <span class="arrow arrow-up">▲</span>
-        <span class="arrow arrow-down">▼</span>
-      </div>
-    </div>
-    <div class="boopa-nav-profile-submenu">
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a class="nav-link" href="#">Mój profil</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Wyloguj</a>
-        </li>
-      </ul>
+    <div class="boopa-nav-profile-header clearfix">      
+      <div class="profile-name">{{user.imie}} {{user.nazwisko}}</div>
+      <div class="profile-lbg">{{user.accessName}}</div>
+      <br/>
     </div>
   </div>
 </nav>
